@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd" >
+<configuration>
+	<!-- typealias, setting에 대한 설정만  -->
+	<typeAliases>
+		<typeAlias type="com.bs.spring.demo.model.dto.Demo" alias="demo"/>
+		<typeAlias type="com.bs.spring.common.StringArrayToStringType" alias="strArr"/>
+		<typeAlias type="com.bs.spring.member.model.dto.Member" alias="member"/>
+		<typeAlias type="com.bs.spring.memo.model.dto.Memo" alias="memo"/>
+		<typeAlias type="com.bs.spring.board.model.dto.Board" alias="board"/>
+		<typeAlias type="com.bs.spring.board.model.dto.Attachment" alias="attachment"/>
+	</typeAliases>
+	<typeHandlers>
+	</typeHandlers>
+</configuration>

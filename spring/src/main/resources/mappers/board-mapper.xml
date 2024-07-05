@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="board">
+	<resultMap id="boardMap" type="board">
+		<id column="boardno" property="boardNo"/>
+		<result column="boardtitle" property="boardTitle"/>
+		<result column="boardwriter" property="boardWriter"/>
+		<result column="boardcontent" property="boardContent"/>
+		<result column="boarddate" property="boardDate"/>
+		<result column="boardreadcount" property="boardReadcount"/>
+		<collection property="files" ofType="attachment">
+			<id column="attachmentno" property="attachNo"/>
+			<result column="originalfilename" property="originalFilename"/>
+			<result column="renamedfilename" property="renamedFilename"/>
+			<result column="boardno" property="boardNo"/>
+			<result column="downloadcount" property="downloadCount"/>
+			<result column="status" property="status"/>
+			<result column="uploadDate" property="uploadDate"/>			
+		</collection>
+	</resultMap>
+	<select id="boardList" resultMap="boardMap">
+		SELECT * FROM BOARD LEFT JOIN ATTACHMENT USING(BOARDNO) 
+		ORDER BY BOARDDATE DESC
+	</select>
+	<select id="boardByNo" resultMap="boardMap" parameterType="_int">
+		SELECT * FROM BOARD LEFT JOIN ATTACHMENT USING(BOARDNO) 
+		WHERE BOARDNO=#{boardNo} 
+	</select>
+	<select id="boardCount" resultType="_int">
+		SELECT COUNT(*) FROM BOARD
+	</select>
+	<insert id="boardInsert" parameterType="board">
+		INSERT INTO BOARD VALUES(SEQ_BOARDNO.NEXTVAL, #{boardTitle},
+		#{boardWriter},#{boardContent},default,default)
+		<selectKey keyProperty="boardNo" order="AFTER" resultType="_int">
+			SELECT SEQ_BOARDNO.CURRVAL FROM DUAL
+		</selectKey>
+	</insert>
+	<update id="boardReadcount" parameterType="_int">
+		UPDATE BOARD SET BOARDREADCOUNT=BOARDREADCOUNT+1 WHERE BOARDNO=#{boardNo}
+	</update>
+	
+	<insert id="insertAttach" parameterType="attachment">
+		INSERT INTO ATTACHMENT VALUES(SEQ_ATTACHMENTN.NEXTVAL,
+			#{boardNo},#{originalFilename},#{renamedFilename},DEFAULT,
+			DEFAULT,DEFAULT)
+		<!-- <selectKey keyProperty="boardNo" order="BEFORE" resultType="_int">
+			SELECT SEQ_BOARDNO.CURRVAL FROM DUAL
+		</selectKey>	 -->
+	</insert>
+	
+	
+
+</mapper>

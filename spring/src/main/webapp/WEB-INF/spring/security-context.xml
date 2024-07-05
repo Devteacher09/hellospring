@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-5.8.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+		
+	<bean id="bcryptPassword"
+		class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"/>
+		
+	<!-- security를 이용한 인증처리하기 -->
+	<!-- security:http 태그로 시작 -->
+	<security:http auto-config="true">
+	
+		<security:csrf disabled="true"/>
+		<!-- 인증화면 커스터마이징하기 -->
+		<!-- 
+			security:form-login
+			속성으로 설정
+			username-parameter : login페이지에서 보내는 id값의 key값 설정
+			password-parameter : login페이지에서 보내는 password값의 key값 설정
+			login-page : 로그인페이지와 연결되는 url주소
+			default-target-url : 인증 후 연결될 기본주소설정 -> 설정X 이전페이지로 이동
+			authentication-failure-forward-url : 인증 실패 후 연결될 서비스
+			authentication-success-forward-url : 성공 후 연결될 서비스
+			login-processing-url : 로그인처리할 주소값 설정 * 시큐리티가 처리하는것!
+		 -->
+		<security:form-login login-page="/loginpage"
+			username-parameter="userId" password-parameter="pw"
+			login-processing-url="/loginbs"
+			authentication-success-forward-url="/loginsuccess"
+			authentication-failure-forward-url="/loginfail"/>
+
+		
+
+		<!-- 차단하고 허용할 url를 등록 
+			<security:interceptor-url>태그 url이용 권한을 확인하는 태그
+			pattern : 권한을 확인한 주소 패턴을 작성
+			access : 권한에 대한 설정
+				permitAll()
+				-> 문자열 admin, user, manager, writer..
+				hasAnyAuthority()
+				hasAuthority()
+				
+				-> ROLE_ADMIN, ROLE_USER
+				hasAnyRole()
+				hasRole()
+		-->
+		<security:intercept-url pattern="/" access="permitAll()"/>
+		<security:intercept-url pattern="/resources/**" access="permitAll()"/>
+		<security:intercept-url pattern="/loginpage" access="permitAll()"/>
+		<security:intercept-url pattern="/demo/**" 
+			access="hasAnyAuthority('user','admin')"/>
+		<security:intercept-url pattern="/manage/**" 
+			access="hasAnyAuthority('manager','admin')"/>
+		<security:intercept-url pattern="/**/insert*" access="hasAuthority('insert')"/>
+		<security:intercept-url pattern="/**" 
+			access="hasAuthority('admin')"/>
+	
+	<!-- 권한이 부족한 사용자가 접근했을때 error페이지 설정하기 -->
+	<security:access-denied-handler 
+		error-page="/WEB-INF/views/common/error/authentication.jsp"/>			
+	
+	<!-- logout에 대한 설정하기 
+		<security:logout>태그이용
+		logout-url : 로그아웃로직을 처리할 주소 default : logout
+		logout-success-url : 로그아웃처리 후 이동할 URL 로직이 필요할 경우 사용
+	-->
+	<security:logout invalidate-session="true"/>
+	
+	<!-- remember-me 구현하기 
+		<security:remember-me>태그이용
+			rememeber-me-parameter : checkbox의 name값설정
+			user-service-ref : 인층처리 proevider설정
+			token-validity-seconds : 인증유지시간
+	-->
+	<security:remember-me 
+		remember-me-parameter="saveUser"
+		user-service-ref="loginProvider"
+		token-validity-seconds="86400" />
+	</security:http>
+	
+	<security:authentication-manager>
+		<security:authentication-provider user-service-ref="loginProvider">
+			<security:password-encoder ref="bcryptPassword"/>
+			<!-- <security:user-service>
+				<security:user name="admin" authorities="admin" 
+				password="$2a$10$QV49sa2yO.97l7VPgi/nMeL8Ton8icMF47PnSYNG72ra.ZVqJyQAy"/>
+				<security:user name="user01" authorities="user" 
+				password="$2a$10$QV49sa2yO.97l7VPgi/nMeL8Ton8icMF47PnSYNG72ra.ZVqJyQAy"/>
+			</security:user-service> -->
+			<!-- <security:password-encoder ref="bcryptPassword"/> -->
+		</security:authentication-provider>
+	</security:authentication-manager>
+	<bean id="securityDao" class="com.bs.spring.member.model.dao.MemberDaoImpl"/>
+	<bean id="loginProvider" 
+		class="com.bs.spring.security.service.SecurityLoginProvider">
+		<constructor-arg index="0" ref="securityDao"/>
+		<constructor-arg index="1" ref="sqlSessionTemplate"/>
+	</bean>
+	
+</beans>
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<h2>기본 html</h2>
+	<button	id="demoall">demo데이터 가져오기</button>
+	<button	id="demoinsert">demo저장하기</button>
+	<script>
+		document.querySelector("#demoall")
+		.addEventListener("click",e=>{
+			fetch("/spring/demos")
+			.then(response=>{
+				console.log(response);
+				switch(response.status){
+					
+				}
+				return response.json()})
+			.then(data=>{
+				console.log(data);
+			});
+		});
+		document.querySelector("#demoinsert")
+		.addEventListener("click",e=>{
+			fetch("/spring/demos",{
+				method:"POST",
+				headers:{
+					"Content-Type":"application/json"
+				},
+				body:JSON.stringify({
+					devName:"김클래스",
+					devAge:19,
+					devEmail:"yoo@yoo.com",
+					devGender:"M",
+					devLang:["java","ruby","go","c#"]
+				})
+			}).then(response=>{
+				console.log(response.headers.get("myheader"));
+				return response.json()})
+			.then(data=>{
+				console.log(data);
+			})
+		})
+	</script>
+	
+	
+	<button onclick="dockerData()">도커이미지</button><br>
+	<input id="name" type="text">
+	<button onclick="logCheck()">로그확인</button>
+	<div id="dockers"></div>
+	<script>
+		const logCheck=()=>{
+			const name=document.getElementById("name").value;
+			fetch(`/spring/demos/log/${name}`,{
+				headers:{
+					"Content-Type":"application/json"
+				}
+			})
+			.then(response=>response.text())
+			.then(data=>{
+				document.getElementById("dockers").innerHTML=data;
+			});
+		}
+		const dockerData=()=>{
+			fetch("/spring/demos/dockers")
+			.then(response=>response.json())
+			.then(data=>{
+				console.log(data);
+			});
+		}
+	</script>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+</body>
+</html>
